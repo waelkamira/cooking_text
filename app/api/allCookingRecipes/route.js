@@ -9,7 +9,7 @@ export async function GET(req) {
   }
 
   // 3. Construct API request URL :
-  const url = `${process.env.NEXT_PUBLIC_MONGODB_DATA_API_URL}/action/find`; // Assuming stored as an environment variable
+  const url = `${process.env.NEXT_PUBLIC_MONGODB_DATA_API_URL_MEALS}/action/find`; // Assuming stored as an environment variable
 
   // 4. Construct request body:
   const body = JSON.stringify({
@@ -31,12 +31,12 @@ export async function GET(req) {
   };
 
   const response = await axios(config);
-  console.log(
-    'res ********************************************',
-    response?.data
-  );
+  // console.log(
+  //   'res ********************************************',
+  //   response?.data
+  // );
 
-  return new Response(JSON.stringify(response?.data?.documents));
+  return new Response(JSON.stringify(response?.data?.documents.reverse()));
 }
 
 // // pages/api/users.js
