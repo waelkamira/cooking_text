@@ -1,25 +1,24 @@
 import axios from 'axios';
 
 export async function GET(req) {
-  // 1. Retrieve API key securely:
+  // Retrieve API key securely:
   const { NEXT_PUBLIC_MONGODB_ID_MEALS } = process.env;
 
   if (!NEXT_PUBLIC_MONGODB_ID_MEALS) {
     return new Response('Missing environment variable', { status: 500 });
   }
 
-  // 3. Construct API request URL :
-  const url = `${process.env.NEXT_PUBLIC_MONGODB_DATA_API_URL_MEALS}/action/find`; // Assuming stored as an environment variable
+  // Construct API request URL:
+  const url = `${process.env.NEXT_PUBLIC_MONGODB_DATA_API_URL_MEALS}/action/find`;
 
-  // 4. Construct request body:
+  // Construct request body:
   const body = JSON.stringify({
-    dataSource: 'Cluster0', // Replace with your actual data source name
+    dataSource: 'Cluster0',
     database: 'test',
     collection: 'meals',
   });
 
-  // 5. Fetch data using Axios:
-
+  // Fetch data using Axios:
   const config = {
     method: 'post',
     url,
@@ -30,14 +29,72 @@ export async function GET(req) {
     },
   };
 
-  const response = await axios(config);
-  // console.log(
-  //   'res ********************************************',
-  //   response?.data
-  // );
+  try {
+    const response = await axios(config);
 
-  return new Response(JSON.stringify(response?.data?.documents.reverse()));
+    console.log('Fetched data:', response?.data?.documents); // Logging the fetched data for debugging
+
+    return new Response(JSON.stringify(response?.data?.documents.reverse()), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control':
+          'no-store, no-cache, must-revalidate, proxy-revalidate',
+        Pragma: 'no-cache',
+        Expires: '0',
+        'Surrogate-Control': 'no-store',
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 }
+
+//! شغال لكن لايحدث في البرودكشن
+// import axios from 'axios';
+
+// export async function GET(req) {
+//   // 1. Retrieve API key securely:
+//   const { NEXT_PUBLIC_MONGODB_ID_MEALS } = process.env;
+
+//   if (!NEXT_PUBLIC_MONGODB_ID_MEALS) {
+//     return new Response('Missing environment variable', { status: 500 });
+//   }
+
+//   // 3. Construct API request URL :
+//   const url = `${process.env.NEXT_PUBLIC_MONGODB_DATA_API_URL_MEALS}/action/find`; // Assuming stored as an environment variable
+
+//   // 4. Construct request body:
+//   const body = JSON.stringify({
+//     dataSource: 'Cluster0', // Replace with your actual data source name
+//     database: 'test',
+//     collection: 'meals',
+//   });
+
+//   // 5. Fetch data using Axios:
+
+//   const config = {
+//     method: 'post',
+//     url,
+//     data: body,
+//     headers: {
+//       Authorization: `Bearer ${NEXT_PUBLIC_MONGODB_ID_MEALS}`,
+//       'Content-Type': 'application/json',
+//     },
+//   };
+
+//   const response = await axios(config);
+//   // console.log(
+//   //   'res ********************************************',
+//   //   response?.data
+//   // );
+
+//   return new Response(JSON.stringify(response?.data?.documents.reverse()));
+// }
 
 // // pages/api/users.js
 
