@@ -27,7 +27,7 @@ export default function AllCookingRecipes() {
     const json = await response?.json();
 
     if (response.ok) {
-      console.log(json);
+      console.log(json.reverse());
       dispatch({ type: 'SET_RECIPES', payload: json });
       const startPage = (pageNumber - 1) * 10;
       const endPage = startPage + 10;

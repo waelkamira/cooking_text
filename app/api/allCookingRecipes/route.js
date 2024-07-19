@@ -9,7 +9,7 @@ export async function GET(req) {
   }
 
   // 3. Construct API request URL:
-  const url = `${process.env.NEXT_PUBLIC_MONGODB_DATA_API_URL}/action/find`; // Assuming stored as an environment variable
+  const url = `${process.env.NEXT_PUBLIC_MONGODB_DATA_API_URL_MEALS}/action/find`; // Assuming stored as an environment variable
 
   // 4. Construct request body:
   const body = JSON.stringify({
@@ -31,14 +31,113 @@ export async function GET(req) {
   };
 
   const response = await axios(config);
-  console.log(
-    'res ********************************************',
-    response?.data
-  );
+  // console.log(
+  //   'res ********************************************',
+  //   response?.data
+  // );
 
   return new Response(JSON.stringify(response?.data?.documents));
 }
 
+export async function DELETE(req) {
+  const { NEXT_PUBLIC_MONGODB_ID_MEALS } = process.env;
+
+  if (!NEXT_PUBLIC_MONGODB_ID_MEALS) {
+    return new Response('Missing environment variable', { status: 500 });
+  }
+
+  const url = `${process.env.NEXT_PUBLIC_MONGODB_DATA_API_URL_MEALS}/action/deleteOne`;
+
+  const { _id } = await req.json();
+
+  const body = JSON.stringify({
+    dataSource: 'Cluster0',
+    database: 'test',
+    collection: 'meals',
+    filter: { _id: { $oid: _id } },
+  });
+
+  try {
+    const config = {
+      method: 'post',
+      url,
+      data: body,
+      headers: {
+        Authorization: `Bearer ${NEXT_PUBLIC_MONGODB_ID_MEALS}`,
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const response = await axios(config);
+    return new Response(JSON.stringify(response.data), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error deleting data:', error);
+    return new Response(JSON.stringify({ error: 'Failed to delete data' }), {
+      status: error.response?.status || 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+export async function PUT(req) {
+  const { NEXT_PUBLIC_MONGODB_ID_MEALS } = process.env;
+
+  if (!NEXT_PUBLIC_MONGODB_ID_MEALS) {
+    return new Response('Missing environment variable', { status: 500 });
+  }
+
+  const url = `${process.env.NEXT_PUBLIC_MONGODB_DATA_API_URL_MEALS}/action/updateOne`;
+
+  const {
+    _id,
+    usersWhoLikesThisRecipe,
+    usersWhoPutEmojiOnThisRecipe,
+    usersWhoPutHeartOnThisRecipe,
+    ...rest
+  } = await req.json();
+
+  const body = JSON.stringify({
+    dataSource: 'Cluster0',
+    database: 'test',
+    collection: 'meals',
+    filter: { _id: { $oid: _id } },
+    update: {
+      $set: {
+        usersWhoLikesThisRecipe,
+        usersWhoPutEmojiOnThisRecipe,
+        usersWhoPutHeartOnThisRecipe,
+        ...rest,
+      },
+    },
+  });
+
+  try {
+    const config = {
+      method: 'post',
+      url,
+      data: body,
+      headers: {
+        Authorization: `Bearer ${NEXT_PUBLIC_MONGODB_ID_MEALS}`,
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const response = await axios(config);
+    return new Response(JSON.stringify(response.data), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error updating data:', error);
+    return new Response(JSON.stringify({ error: 'Failed to update data' }), {
+      status: error.response?.status || 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+}
 // // pages/api/users.js
 
 // export async function GET() {
