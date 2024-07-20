@@ -1,60 +1,5 @@
-import axios from 'axios';
+// //! شغال لكن لا يحدث في البرودكشن
 
-export async function GET(req) {
-  // Retrieve API key securely:
-  const { NEXT_PUBLIC_MONGODB_ID_MEALS } = process.env;
-
-  if (!NEXT_PUBLIC_MONGODB_ID_MEALS) {
-    return new Response('Missing environment variable', { status: 500 });
-  }
-
-  // Construct API request URL:
-  const url = `${process.env.NEXT_PUBLIC_MONGODB_DATA_API_URL_MEALS}/action/find`;
-
-  // Construct request body:
-  const body = JSON.stringify({
-    dataSource: 'Cluster0',
-    database: 'test',
-    collection: 'meals',
-  });
-
-  // Fetch data using Axios:
-  const config = {
-    method: 'post',
-    url,
-    data: body,
-    headers: {
-      Authorization: `Bearer ${NEXT_PUBLIC_MONGODB_ID_MEALS}`,
-      'Content-Type': 'application/json',
-    },
-  };
-
-  try {
-    const response = await axios(config);
-
-    console.log('Fetched data:', response?.data?.documents); // Logging the fetched data for debugging
-
-    return new Response(JSON.stringify(response?.data?.documents.reverse()), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control':
-          'no-store, no-cache, must-revalidate, proxy-revalidate',
-        Pragma: 'no-cache',
-        Expires: '0',
-        'Surrogate-Control': 'no-store',
-      },
-    });
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-}
-
-//! شغال لكن لايحدث في البرودكشن
 // import axios from 'axios';
 
 // export async function GET(req) {
@@ -123,67 +68,67 @@ export async function GET(req) {
 //   return Response.json(response);
 // }
 
-// import { mealsConnection } from '../../../lib/MongoDBConnections'; // Adjust the import path accordingly
-// import { Meal } from '../models/CreateMealModel';
+import { mealsConnection } from '../../../lib/MongoDBConnections'; // Adjust the import path accordingly
+import { Meal } from '../models/CreateMealModel';
 
-// // Ensure the connection is ready before using it
-// async function ensureConnection() {
-//   if (!mealsConnection.readyState) {
-//     await mealsConnection.openUri(process.env.NEXT_PUBLIC_MONGODB_MEALS);
-//   }
-// }
+// Ensure the connection is ready before using it
+async function ensureConnection() {
+  if (!mealsConnection.readyState) {
+    await mealsConnection.openUri(process.env.NEXT_PUBLIC_MONGODB_MEALS);
+  }
+}
 
-// export async function GET() {
-//   await ensureConnection();
+export async function GET() {
+  await ensureConnection();
 
-//   // Using the existing connection to perform the operation
-//   const MealModel = mealsConnection.model('Meal', Meal.schema);
-//   const allCookingRecipes = await MealModel.find();
+  // Using the existing connection to perform the operation
+  const MealModel = mealsConnection.model('Meal', Meal.schema);
+  const allCookingRecipes = await MealModel.find();
 
-//   return new Response(JSON.stringify(allCookingRecipes.reverse()), {
-//     status: 200,
-//   });
-// }
+  return new Response(JSON.stringify(allCookingRecipes.reverse()), {
+    status: 200,
+  });
+}
 
-// export async function DELETE(req) {
-//   await ensureConnection();
+export async function DELETE(req) {
+  await ensureConnection();
 
-//   const { _id } = await req.json();
+  const { _id } = await req.json();
 
-//   // Using the existing connection to perform the operation
-//   const MealModel = mealsConnection.model('Meal', Meal.schema);
-//   const deleteRecipe = await MealModel.findByIdAndDelete({ _id });
+  // Using the existing connection to perform the operation
+  const MealModel = mealsConnection.model('Meal', Meal.schema);
+  const deleteRecipe = await MealModel.findByIdAndDelete({ _id });
 
-//   return new Response(JSON.stringify(deleteRecipe), { status: 200 });
-// }
+  return new Response(JSON.stringify(deleteRecipe), { status: 200 });
+}
 
-// export async function PUT(req) {
-//   await ensureConnection();
+export async function PUT(req) {
+  await ensureConnection();
 
-//   const {
-//     _id,
-//     usersWhoLikesThisRecipe,
-//     usersWhoPutEmojiOnThisRecipe,
-//     usersWhoPutHeartOnThisRecipe,
-//     ...rest
-//   } = await req.json();
+  const {
+    _id,
+    usersWhoLikesThisRecipe,
+    usersWhoPutEmojiOnThisRecipe,
+    usersWhoPutHeartOnThisRecipe,
+    ...rest
+  } = await req.json();
 
-//   // Using the existing connection to perform the operation
-//   const MealModel = mealsConnection.model('Meal', Meal.schema);
-//   const updateLikes = await MealModel.findByIdAndUpdate(
-//     { _id },
-//     {
-//       usersWhoLikesThisRecipe,
-//       usersWhoPutEmojiOnThisRecipe,
-//       usersWhoPutHeartOnThisRecipe,
-//       ...rest,
-//     },
-//     { new: true } // Return the updated document
-//   );
+  // Using the existing connection to perform the operation
+  const MealModel = mealsConnection.model('Meal', Meal.schema);
+  const updateLikes = await MealModel.findByIdAndUpdate(
+    { _id },
+    {
+      usersWhoLikesThisRecipe,
+      usersWhoPutEmojiOnThisRecipe,
+      usersWhoPutHeartOnThisRecipe,
+      ...rest,
+    },
+    { new: true } // Return the updated document
+  );
 
-//   return new Response(JSON.stringify(updateLikes), { status: 200 });
-// }
-
+  return new Response(JSON.stringify(updateLikes), { status: 200 });
+}
+//*********************************************************************************** */
 // import mongoose from 'mongoose';
 // import { Meal } from '../models/CreateMealModel';
 
